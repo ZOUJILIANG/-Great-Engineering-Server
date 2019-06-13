@@ -1,15 +1,25 @@
 const express = require('express');
-var fs = require('fs');
+// 引入jwt token工具
+const JwtUtil = require('./tool/jwt');
+const fs = require('fs');
 const router = express.Router();
 
-router.get('/login', (req, res) => {
+router.post('/login', (req, res) => {
     fs.readFile('./../data.json',function(err,data){
       if(err){
         return console.error(err);
     }
     var person = data.toString();//将二进制的数据转换为字符串
     person = JSON.parse(person);//将字符串转换为json对象
-    res.send(person)
+    const login_Pass = person['data'].filter((element1) => {
+        return req.body.username === element1.name && req.body.password === element1.password;
+      });
+      if(login_Pass.length){
+        res.send({code:200,message:'登陆成功',person: person});
+      }else {
+        res.send({code: 'INVALID',message:'用户名密码不正确'})
+      }
+    
   });
 });
 
@@ -30,9 +40,26 @@ router.post('/registered', (req, res, next) => {
           if(err){
             return res.status(500).send(err)
           }
-          return res.send(person)
+          // 登陆成功，添加token验证
+        let password = req.password;
+        // 将用户id传入并生成token
+        let jwt = new JwtUtil(password);
+        let token = jwt.generateToken();
+        // 将 token 返回给客户端
+        return res.send({code:200,message:'注册成功',token:token});
       })
   })
 });
+
+router.post('/setToken', (req, res, next) => {
+
+          // 登陆成功，添加token验证
+        let password = req.password;
+        // 将用户id传入并生成token
+        let jwt = new JwtUtil(password);
+        let token = jwt.generateToken();
+        // 将 token 返回给客户端
+        return res.send({code:200,message:'获取成功',token:token});
+  });
 
 module.exports = router;
