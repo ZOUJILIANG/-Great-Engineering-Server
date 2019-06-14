@@ -4,6 +4,18 @@ const JwtUtil = require('./tool/jwt');
 const fs = require('fs');
 const router = express.Router();
 
+router.get('/getHomeContent', (req, res, next) => {
+  let token = req.headers.token;
+    let jwt = new JwtUtil(token);
+    let result = jwt.verifyToken();
+  if (result == 'err') {
+    var err = new Error('登陆过期');
+    next(err);
+  } else {
+    res.send({message: 'sucess'});
+  }
+});
+
 router.post('/login', (req, res) => {
     fs.readFile('./../data.json',function(err,data){
       if(err){
@@ -15,7 +27,12 @@ router.post('/login', (req, res) => {
         return req.body.username === element1.name && req.body.password === element1.password;
       });
       if(login_Pass.length){
-        res.send({code:200,message:'登陆成功',person: person});
+        // 登陆成功，添加token验证
+        let password = req.password;
+        // 将用户id传入并生成token
+        let jwt = new JwtUtil(password);
+        let token = jwt.generateToken();
+        res.send({code:200,message:'登陆成功',person: person,token:token});
       }else {
         res.send({code: 'INVALID',message:'用户名密码不正确'})
       }
@@ -52,14 +69,13 @@ router.post('/registered', (req, res, next) => {
 });
 
 router.post('/setToken', (req, res, next) => {
-
-          // 登陆成功，添加token验证
-        let password = req.password;
-        // 将用户id传入并生成token
-        let jwt = new JwtUtil(password);
-        let token = jwt.generateToken();
-        // 将 token 返回给客户端
-        return res.send({code:200,message:'获取成功',token:token});
+    // 登陆成功，添加token验证
+    let password = req.password;
+    // 将用户id传入并生成token
+    let jwt = new JwtUtil(password);
+    let token = jwt.generateToken();
+    // 将 token 返回给客户端
+    return res.send({code:200,message:'获取成功',token:token});
   });
 
 module.exports = router;
