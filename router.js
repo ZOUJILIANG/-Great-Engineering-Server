@@ -2,7 +2,36 @@ const express = require('express');
 // 引入jwt token工具
 const JwtUtil = require('./tool/jwt');
 const fs = require('fs');
+var cheerio = require("cheerio");
+var server = require("./tool/curl.js");
 const router = express.Router();
+
+router.get('/getHtml', (req, res, next) => {
+  let token = req.headers.token;
+    let jwt = new JwtUtil(token);
+    let result = jwt.verifyToken();
+  if (result == 'err') {
+    var err = new Error('登陆过期');
+    next(err);
+  } else {
+    var url = "http://www.cnblogs.com/CraryPrimitiveMan/p/3674421.html"
+
+    server.download(url, function(data) {
+      if (data) {
+        var $ = cheerio.load(data);
+      console.log($("app-root"));
+        $("app-root").each(function(i, e) {
+          
+          res.send(e.toString());
+        });
+
+        console.log("done");
+      } else {
+          console.log("error");
+      } 
+    });
+  }
+});
 
 router.get('/getHomeContent', (req, res, next) => {
   let token = req.headers.token;

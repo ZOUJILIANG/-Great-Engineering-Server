@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const wiki = require('./router.js');
 const bodyParser = require('body-parser');
+
 // parse application/json
 app.use(bodyParser.json())
 
@@ -14,4 +15,5 @@ app.all('*', function(req, res, next) {
 });
 app.use('/wiki', wiki);
 app.listen(8080);
+
 console.log('Listening on port 8080...');
