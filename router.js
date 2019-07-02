@@ -14,7 +14,7 @@ router.get('/getHtml', (req, res, next) => {
     var err = new Error('登陆过期');
     next(err);
   } else {
-    var url = "http://www.cnblogs.com/CraryPrimitiveMan/p/3674421.html"
+    const url = "https://www.baidu.com/"
 
     server.download(url, function(data) {
       if (data) {

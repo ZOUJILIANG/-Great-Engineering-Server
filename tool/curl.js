@@ -3,7 +3,9 @@ const https = require('https');
 // Utility function that downloads a URL and invokes
 // callback with the data.
 function download(url, callback) {
-  http.get(url, function(res) {
+  console.log(url);
+  https.get(url, function(res) {
+    console.log(res);
       var data = "";
       res.on('data', function (chunk) {
         data += chunk;
@@ -11,7 +13,8 @@ function download(url, callback) {
       res.on("end", function() {
         callback(data);
       });
-    }).on("error", function() {
+    }).on("error", function(error) {
+      console.log(error);
       callback(null);
     });
   }
